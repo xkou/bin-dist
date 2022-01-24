@@ -24,6 +24,7 @@ jobs:
             echo ::set-output name=uname::$(uname -a)
             apt update
             apt upgrade -y
+            apt-get install build-essential git -y
             git clone --single-branch --branch "v2.13.0" --shallow-submodules --recurse-submodules --depth 1 https://github.com/luvit/luvi.git luvi
             cd luvi
             make regular
