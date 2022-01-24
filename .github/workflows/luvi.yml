@@ -1,0 +1,44 @@
+on: [push, pull_request]
+
+jobs:
+  armv7_job:
+    # The host should always be Linux
+    runs-on: ubuntu-18.04
+    name: Build on ubuntu-18.04 armv7
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: uraimo/run-on-arch-action@v2
+        name: Run commands
+        id: runcmd
+        with:
+          arch: armv7
+          distro: ubuntu18.04
+
+          # Not required, but speeds up builds by storing container images in
+          # a GitHub package registry.
+          githubToken: ${{ github.token }}
+
+          # Set an output parameter `uname` for use in subsequent steps
+          run: |
+            uname -a
+            echo ::set-output name=uname::$(uname -a)
+            apt update
+            apt upgrade -y
+            git clone --single-branch --branch "v2.13.0" --shallow-submodules --recurse-submodules --depth 1 https://github.com/luvit/luvi.git luvi
+            cd luvi
+            make regular
+            make
+            cp luvi/build/luvi luvi-armv7l
+
+
+      - name: Github Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+        with:
+          files: |
+            luvi-armv7l
+
+          draft: false
+          prerelease: false
