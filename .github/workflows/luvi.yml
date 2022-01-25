@@ -29,6 +29,7 @@ jobs:
             cd luvi
             make regular
             make
+            cd ..
             cp luvi/build/luvi luvi-armv7l
 
 
